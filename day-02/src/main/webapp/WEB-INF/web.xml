@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
+         version="4.0">
+
+    <!--  HiddenHttpMethodFilter 會根據幾個條件對POST請求作出轉換
+            1. 必須是 POST 請求
+            2. 必須有參數 _method
+                如果沒有 -> 保持 POST 請求
+                如果有 PUT -> 轉換為 PUT 請求
+                如果有 是DELETE -> 轉換為 DELETE 請求
+                真正的請求方式就是 _method 的值
+    -->
+    <filter>
+        <filter-name>hiddenHttpMethodFilter</filter-name>
+        <filter-class>org.springframework.web.filter.HiddenHttpMethodFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>hiddenHttpMethodFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <!--  The problem is that when you return a view name from your controller method,
+    the Spring DispatcherServlet will do a forward to the given view, preserving the original PUT method.
+
+    On attempting to handle this forward, Tomcat will refuse it, with the justification that a PUT to a JSP could be construed to mean
+    "replace this JSP file on the server with the content of this request."
+
+    Really you want your controller to handle your PUT requests and then to subsequently forward to your JSPs as GET.
+    Fortunately Servlet 3.0 provides a means to filter purely on the FORWARD dispatcher.
+
+    This will convert requests to GET on forward only, leaving requests through other dispatchers unchanged,
+    so PUTs will get intercepted by your controllers as normal.
+
+    My (possibly incorrect) understanding is that Tomcat 8.0.9 introduced a fix where this is effectively done automatically for the
+    ERROR dispatcher - see the answer in your linked question. But you're not using the container's error handling mechanism to render your error page,
+    you're using Spring MVC to manually forward to the view, hence why you need to do this.
+    Personally I encountered this issue under Jetty 9.2.7 where no such fix is in place, and I delegate error handling to the container,
+    so I have <dispatcher>ERROR</dispatcher> configured in my filter mapping as well.
+
+    This all seems a bit arcane but is the only way I've discovered to successfully jump through this particular RESTful-Spring-JSP-web- applicationhoop.-->
+
+    <filter>
+        <filter-name>getMethodConvertingFilter</filter-name>
+        <filter-class>au.com.vincentbai.day_02.filter.GetMethodConvertingFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>getMethodConvertingFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+        <dispatcher>FORWARD</dispatcher>
+    </filter-mapping>
+
+
+    <servlet>
+        <servlet-name>springMVC</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>springMVC</servlet-name>
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
+
+</web-app>

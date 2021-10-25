@@ -1,0 +1,20 @@
+springMVC 的搭建過程
+1. 導入 jar 包
+2. 在 web.xml 中配置springMVC的核心（前端）控制器 DispatcherServlet
+作用：加載springMVC的配置文件，在下方的配置配置方式下，DispatcherServlet 會自動加載配置文件，此時的配置文件有默認的位置和名稱，
+默認的位置是WEB-INF, 默認的名稱是<servlet-name>-servlet.xml，例如下方的配置文件的默認名稱為 springMVC-servlet.xml
+儅加載了配置文件，springMVC就會根據掃描組件來找到控制層
+<servlet>
+        <servlet-name>springMVC</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>springMVC</servlet-name>
+        <url-pattern>/</url-pattern> <!-- 只處理請求，靜態頁面被放行-->
+<!--        <url-pattern>/*</url-pattern> 靜態頁面和請求都會被處理-->
+    </servlet-mapping>
+3. 創建一個POJO，在此類上加上@Controller注解，springMVC就會將此類作爲控制層加載，讓其處理請求響應
+4. 在控制層中，需要在方法上設置 @RequestMapping(value = "xxx"), springMVC 就是通過此注解將請求路徑與控制層中方法進行匹配，
+此時的請求路徑為 localhost:8080/projectName/xxx
+5. 處理請求方法會返回一個字符串，即視圖名稱，最終會通過配置文件中配置的視圖解釋器實現頁面跳轉
+方式： prefix + 視圖名稱 + suffix 此爲最終跳轉的路徑

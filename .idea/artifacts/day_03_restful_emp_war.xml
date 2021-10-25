@@ -1,0 +1,14 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="day-03-restful-emp:war">
+    <output-path>$PROJECT_DIR$/day-03-restful-emp/target</output-path>
+    <properties id="maven-jee-properties">
+      <options>
+        <module>day-03-restful-emp</module>
+        <packaging>war</packaging>
+      </options>
+    </properties>
+    <root id="archive" name="day-03-restful-emp-1.0-SNAPSHOT.war">
+      <element id="artifact" artifact-name="day-03-restful-emp:war exploded" />
+    </root>
+  </artifact>
+</component>
